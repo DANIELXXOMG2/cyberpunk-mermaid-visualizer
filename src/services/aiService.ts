@@ -8,7 +8,7 @@ export interface AiFixResult {
 }
 
 export class AiService {
-  private static readonly GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
+  private static readonly GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
   
   static async fixMermaidCode(code: string, apiKey: string, errorMessage?: string): Promise<AiFixResult> {
     if (!apiKey.trim()) {
@@ -182,7 +182,7 @@ Fixed code:`;
         error: 'Could not extract valid Mermaid code from AI response'
       };
       
-    } catch (error) {
+    } catch (_) {
       return {
         success: false,
         error: 'Failed to parse AI response'

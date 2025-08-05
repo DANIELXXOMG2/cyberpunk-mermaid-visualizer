@@ -137,7 +137,7 @@ export const useHistory = (initialCode: string = ''): UseHistoryReturn => {
 };
 
 // Hook for keyboard shortcuts
-export const useHistoryKeyboard = (onUndo: () => void, onRedo: () => void) => {
+export const useHistoryKeyboard = (onUndo: () => void, onRedo: () => void, onSave?: () => void) => {
   const handleKeyDown = useCallback((event: KeyboardEvent) => {
     if (event.ctrlKey || event.metaKey) {
       if (event.key === 'z' && !event.shiftKey) {
@@ -146,9 +146,13 @@ export const useHistoryKeyboard = (onUndo: () => void, onRedo: () => void) => {
       } else if ((event.key === 'y') || (event.key === 'z' && event.shiftKey)) {
         event.preventDefault();
         onRedo();
+      } else if (event.key === 's') {
+        event.preventDefault();
+        console.log('💾 [SAVE] Atajo de teclado Ctrl+S detectado');
+        onSave?.();
       }
     }
-  }, [onUndo, onRedo]);
+  }, [onUndo, onRedo, onSave]);
 
   return { handleKeyDown };
 };

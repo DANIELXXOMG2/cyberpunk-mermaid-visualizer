@@ -34,13 +34,11 @@ export default defineConfig({
           'vendor-toast': ['sonner'],
         },
         // Optimize chunk naming
-        chunkFileNames: (chunkInfo) => {
-          const facadeModuleId = chunkInfo.facadeModuleId
-            ? chunkInfo.facadeModuleId.split('/').pop()
-            : 'chunk';
+        chunkFileNames: () => {
           return `js/[name]-[hash].js`;
         },
         assetFileNames: (assetInfo) => {
+          if (!assetInfo.name) return `assets/[name]-[hash][extname]`;
           const info = assetInfo.name.split('.');
           const ext = info[info.length - 1];
           if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(ext)) {
@@ -55,14 +53,7 @@ export default defineConfig({
     },
   },
   plugins: [
-    react({
-      babel: {
-        plugins: [
-          'react-dev-locator',
-        ],
-      },
-    }),
- 
+    react(),
     tsconfigPaths()
   ],
   // Optimize dependencies

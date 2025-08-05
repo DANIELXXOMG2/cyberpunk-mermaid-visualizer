@@ -1,39 +1,52 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, forwardRef, useImperativeHandle } from 'react';
 import mermaid from 'mermaid';
 import { ZoomIn, ZoomOut, RotateCcw, Maximize2 } from 'lucide-react';
 
 interface DiagramViewerProps {
   code: string;
-  onError?: (error: string) => void;
+  onError?: (error: string | null) => void;
   onSuccess?: () => void;
 }
 
-export const DiagramViewer = React.forwardRef<HTMLDivElement, DiagramViewerProps>(({ 
-  code, 
-  onError, 
-  onSuccess 
-}, ref) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const combinedRef = useRef<HTMLDivElement>(null);
+export interface DiagramViewerRef {
+  getSVG: () => string | null;
+  getContainer: () => HTMLElement | null;
+}
 
-  // Combine external ref with internal ref
-  React.useImperativeHandle(ref, () => combinedRef.current!, []);
+export const DiagramViewer = forwardRef<DiagramViewerRef, DiagramViewerProps>((
+  { code, onError, onSuccess },
+  ref
+) => {
+  const containerRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [zoom, setZoom] = useState(1);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
+  useImperativeHandle(ref, () => ({
+    getSVG: () => {
+      if (!containerRef.current) return null;
+      const svgElement = containerRef.current.querySelector('svg');
+      return svgElement ? svgElement.outerHTML : null;
+    },
+    getContainer: () => containerRef.current,
+  }));
+
+  const combinedRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
-    // Configure Mermaid with cyberpunk theme
     mermaid.initialize({
       startOnLoad: false,
       theme: 'dark',
       themeVariables: {
-        primaryColor: '#00FFFF',
-        primaryTextColor: '#00FFFF',
-        primaryBorderColor: '#00FFFF',
-        lineColor: '#00FFFF',
-        secondaryColor: '#FF00FF',
-        tertiaryColor: '#FFFF00',
+        primaryColor: '#00ffff',
+        primaryTextColor: '#ffffff',
+        primaryBorderColor: '#00ffff',
+        lineColor: '#00ffff',
+        sectionBkgColor: '#1a1a1a',
+        altSectionBkgColor: '#2a2a2a',
+        gridColor: '#333333',
+        secondaryColor: '#ff00ff',
+        tertiaryColor: '#ffff00',
         background: '#0D1117',
         mainBkg: '#0D1117',
         secondBkg: '#1a1a1a',

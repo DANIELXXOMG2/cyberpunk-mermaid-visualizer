@@ -2,10 +2,11 @@ import React, { useState, useRef, useEffect, useCallback, Suspense, lazy } from 
 import { Toaster, toast } from 'sonner';
 import { useStore } from './store/useStore';
 import { CodeEditor } from './components/CodeEditor';
-import { DiagramViewer } from './components/DiagramViewer';
+import { DiagramViewer, DiagramViewerRef } from './components/DiagramViewer';
 import { Toolbar } from './components/Toolbar';
 import { useHistory, useHistoryKeyboard } from './hooks/useHistory';
 import { AiService } from './services/aiService';
+import { diagramService } from './lib/supabase';
 
 // Lazy load heavy components for better performance
 const SettingsModal = lazy(() => import('./components/SettingsModal').then(module => ({ default: module.SettingsModal })));
@@ -34,7 +35,7 @@ function App() {
     geminiApiKey
   } = useStore();
   
-  const diagramRef = useRef<HTMLDivElement>(null);
+  const diagramRef = useRef<DiagramViewerRef>(null);
   const [isAiFixing, setIsAiFixing] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -75,8 +76,67 @@ function App() {
     }
   }, [redo, setCode]);
 
+  // Handle save diagram
+  const handleSave = useCallback(async () => {
+    console.log('💾 [SAVE] Iniciando guardado de diagrama', { 
+      codeLength: code.length, 
+      timestamp: new Date().toISOString() 
+    });
+    
+    if (!code.trim()) {
+      console.warn('⚠️ [SAVE] No hay código para guardar');
+      toast.error('No hay código para guardar', {
+        description: 'Por favor, escribe algo de código Mermaid primero.',
+        duration: 3000,
+      });
+      return;
+    }
+
+    try {
+      // Detectar tipo de diagrama basado en el código
+      const diagramType = code.trim().split('\n')[0].split(' ')[0] || 'graph';
+      
+      console.log('📊 [SAVE] Tipo de diagrama detectado:', diagramType);
+      
+      const diagramData = {
+        title: `Diagrama ${diagramType} - ${new Date().toLocaleDateString()}`,
+        description: `Diagrama creado el ${new Date().toLocaleString()}`,
+        diagram_type: diagramType,
+        mermaid_code: code,
+        is_public: true, // Por ahora todos los diagramas son públicos
+      };
+      
+      console.log('📤 [SAVE] Enviando datos a Supabase...', diagramData);
+      
+      const result = await diagramService.saveDiagram(diagramData);
+      
+      if (result.error) {
+        console.error('❌ [SAVE] Error de Supabase:', result.error);
+        toast.error('Error al guardar', {
+          description: `Error: ${result.error.message || 'Error desconocido'}`,
+          duration: 5000,
+        });
+      } else {
+        console.log('✅ [SAVE] Diagrama guardado exitosamente:', result.data);
+        toast.success('Diagrama guardado', {
+          description: `Guardado como: ${result.data?.title}`,
+          duration: 3000,
+        });
+        
+        // Agregar entrada al historial
+        addEntry(code, 'Diagrama guardado en Supabase');
+      }
+    } catch (error) {
+      console.error('❌ [SAVE] Error inesperado:', error);
+      toast.error('Error al guardar', {
+        description: error instanceof Error ? error.message : 'Error inesperado al guardar el diagrama',
+        duration: 5000,
+      });
+    }
+  }, [code, addEntry]);
+
   // Keyboard shortcuts
-  const { handleKeyDown } = useHistoryKeyboard(handleUndo, handleRedo);
+  const { handleKeyDown } = useHistoryKeyboard(handleUndo, handleRedo, handleSave);
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown);
@@ -180,7 +240,7 @@ function App() {
                 </a>
                 {' '}(
                 <a 
-                  href="https://github.com/danielxxomg/cyberpunk-mermaid-visualizer" 
+                  href="https://github.com/danielxxomg2/cyberpunk-mermaid-visualizer" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="text-cyberpunk-primary hover:text-cyberpunk-secondary underline transition-colors"
@@ -258,7 +318,7 @@ function App() {
         <ExportModal
           isOpen={isExportOpen}
           onClose={() => setIsExportOpen(false)}
-          diagramElement={diagramRef.current}
+          diagramElement={diagramRef.current?.getContainer() || null}
         />
       </Suspense>
 

@@ -47,11 +47,20 @@ export const ExportModal: React.FC<ExportModalProps> = ({
   ];
 
   const exportAsSVG = async (): Promise<void> => {
-    if (!diagramElement) throw new Error('No diagram element found');
+    console.log('🚀 [EXPORT] Iniciando exportación SVG', { fileName, timestamp: new Date().toISOString() });
+    
+    if (!diagramElement) {
+      console.error('❌ [EXPORT] Error: No se encontró elemento del diagrama');
+      throw new Error('No diagram element found');
+    }
     
     const svgElement = diagramElement.querySelector('svg');
-    if (!svgElement) throw new Error('No SVG element found in diagram');
+    if (!svgElement) {
+      console.error('❌ [EXPORT] Error: No se encontró elemento SVG en el diagrama');
+      throw new Error('No SVG element found in diagram');
+    }
     
+    console.log('📋 [EXPORT] Clonando elemento SVG...');
     // Clone the SVG to avoid modifying the original
     const clonedSvg = svgElement.cloneNode(true) as SVGElement;
     
@@ -59,8 +68,14 @@ export const ExportModal: React.FC<ExportModalProps> = ({
     clonedSvg.style.background = '#0a0a0a';
     clonedSvg.style.fontFamily = 'JetBrains Mono, monospace';
     
+    console.log('🎨 [EXPORT] Aplicando estilos cyberpunk al SVG...');
     const svgData = new XMLSerializer().serializeToString(clonedSvg);
     const blob = new Blob([svgData], { type: 'image/svg+xml' });
+    
+    console.log('💾 [EXPORT] Creando blob y descargando archivo SVG...', { 
+      blobSize: blob.size, 
+      fileName: `${fileName}.svg` 
+    });
     
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -69,11 +84,18 @@ export const ExportModal: React.FC<ExportModalProps> = ({
     link.click();
     
     URL.revokeObjectURL(url);
+    console.log('✅ [EXPORT] Exportación SVG completada exitosamente');
   };
 
   const exportAsPNG = async (): Promise<void> => {
-    if (!diagramElement) throw new Error('No diagram element found');
+    console.log('🚀 [EXPORT] Iniciando exportación PNG', { fileName, timestamp: new Date().toISOString() });
     
+    if (!diagramElement) {
+      console.error('❌ [EXPORT] Error: No se encontró elemento del diagrama');
+      throw new Error('No diagram element found');
+    }
+    
+    console.log('🖼️ [EXPORT] Generando canvas con html2canvas...');
     const canvas = await html2canvas(diagramElement, {
       backgroundColor: '#0a0a0a',
       scale: 2, // Higher resolution
@@ -81,8 +103,22 @@ export const ExportModal: React.FC<ExportModalProps> = ({
       allowTaint: true
     });
     
+    console.log('📐 [EXPORT] Canvas generado', { 
+      width: canvas.width, 
+      height: canvas.height,
+      scale: 2
+    });
+    
     canvas.toBlob((blob) => {
-      if (!blob) throw new Error('Failed to create PNG blob');
+      if (!blob) {
+        console.error('❌ [EXPORT] Error: Falló la creación del blob PNG');
+        throw new Error('Failed to create PNG blob');
+      }
+      
+      console.log('💾 [EXPORT] Creando blob y descargando archivo PNG...', { 
+        blobSize: blob.size, 
+        fileName: `${fileName}.png` 
+      });
       
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -91,17 +127,30 @@ export const ExportModal: React.FC<ExportModalProps> = ({
       link.click();
       
       URL.revokeObjectURL(url);
+      console.log('✅ [EXPORT] Exportación PNG completada exitosamente');
     }, 'image/png');
   };
 
   const exportAsPDF = async (): Promise<void> => {
-    if (!diagramElement) throw new Error('No diagram element found');
+    console.log('🚀 [EXPORT] Iniciando exportación PDF', { fileName, timestamp: new Date().toISOString() });
     
+    if (!diagramElement) {
+      console.error('❌ [EXPORT] Error: No se encontró elemento del diagrama');
+      throw new Error('No diagram element found');
+    }
+    
+    console.log('🖼️ [EXPORT] Generando canvas con html2canvas para PDF...');
     const canvas = await html2canvas(diagramElement, {
       backgroundColor: '#0a0a0a',
       scale: 2,
       useCORS: true,
       allowTaint: true
+    });
+    
+    console.log('📐 [EXPORT] Canvas generado para PDF', { 
+      width: canvas.width, 
+      height: canvas.height,
+      orientation: canvas.width > canvas.height ? 'landscape' : 'portrait'
     });
     
     const imgData = canvas.toDataURL('image/png');
@@ -111,8 +160,12 @@ export const ExportModal: React.FC<ExportModalProps> = ({
       format: [canvas.width, canvas.height]
     });
     
+    console.log('📄 [EXPORT] Creando documento PDF y agregando imagen...');
     pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+    
+    console.log('💾 [EXPORT] Guardando archivo PDF...', { fileName: `${fileName}.pdf` });
     pdf.save(`${fileName}.pdf`);
+    console.log('✅ [EXPORT] Exportación PDF completada exitosamente');
   };
 
   const handleExport = async () => {
