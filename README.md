@@ -91,7 +91,7 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/mermaid-flow-ai.git
+git clone https://github.com/danielxxomg2/mermaid-flow-ai.git
 cd mermaid-flow-ai
 
 # Install dependencies
@@ -120,7 +120,7 @@ bun run dev
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/mermaid-flow-ai.git
+   git clone https://github.com/danielxxomg2/mermaid-flow-ai.git
    cd mermaid-flow-ai
    ```
 
@@ -183,6 +183,29 @@ VITE_GEMINI_API_KEY=your_gemini_api_key
 1. **Visit** [Google AI Studio](https://aistudio.google.com/app/welcome)
 2. **Create an API key** for Gemini
 3. **Add the key** to your `.env` file
+
+## 🐳 Docker Deployment
+
+### **Coming Soon**
+
+We're working on Docker support to make deployment even easier! This will include:
+
+- **Multi-stage Docker builds** for optimized production images
+- **Docker Compose** setup with Supabase integration
+- **Environment variable management** for containerized deployments
+- **Health checks** and monitoring capabilities
+- **Kubernetes manifests** for scalable deployments
+
+**Expected features:**
+```bash
+# Quick start with Docker (Coming Soon)
+docker-compose up -d
+
+# Or with Docker
+docker run -p 3000:3000 danielxxomg2/mermaid-flow-ai
+```
+
+📅 **ETA:** Q2 2024 - Stay tuned for updates!
 
 ## 🎯 Usage Guide
 
@@ -393,9 +416,9 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 <div align="center">
   <p>Made with ❤️ by the Mermaid Flow AI team</p>
   <p>
-    <a href="https://github.com/yourusername/mermaid-flow-ai/issues">Report Bug</a> ·
-    <a href="https://github.com/yourusername/mermaid-flow-ai/issues">Request Feature</a> ·
-    <a href="https://github.com/yourusername/mermaid-flow-ai/discussions">Discussions</a>
+    <a href="https://github.com/danielxxomg2/mermaid-flow-ai/issues">Report Bug</a> ·
+    <a href="https://github.com/danielxxomg2/mermaid-flow-ai/issues">Request Feature</a> ·
+    <a href="https://github.com/danielxxomg2/mermaid-flow-ai/discussions">Discussions</a>
   </p>
 </div>
 
@@ -411,8 +434,8 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 ## 📊 Project Stats
 
 <div align="center">
-  <img src="https://img.shields.io/github/stars/yourusername/mermaid-flow-ai?style=social" alt="GitHub stars" />
-  <img src="https://img.shields.io/github/forks/yourusername/mermaid-flow-ai?style=social" alt="GitHub forks" />
-  <img src="https://img.shields.io/github/issues/yourusername/mermaid-flow-ai" alt="GitHub issues" />
-  <img src="https://img.shields.io/github/license/yourusername/mermaid-flow-ai" alt="License" />
+  <img src="https://img.shields.io/github/stars/danielxxomg2/mermaid-flow-ai?style=social" alt="GitHub stars" />
+  <img src="https://img.shields.io/github/forks/danielxxomg2/mermaid-flow-ai?style=social" alt="GitHub forks" />
+  <img src="https://img.shields.io/github/issues/danielxxomg2/mermaid-flow-ai" alt="GitHub issues" />
+  <img src="https://img.shields.io/github/license/danielxxomg2/mermaid-flow-ai" alt="License" />
 </div>

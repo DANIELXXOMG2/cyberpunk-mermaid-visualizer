@@ -1,13 +1,27 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, Suspense, lazy } from 'react';
 import { Toaster, toast } from 'sonner';
 import { useStore } from './store/useStore';
 import { CodeEditor } from './components/CodeEditor';
 import { DiagramViewer } from './components/DiagramViewer';
 import { Toolbar } from './components/Toolbar';
-import { SettingsModal } from './components/SettingsModal';
-import { ExportModal } from './components/ExportModal';
 import { useHistory, useHistoryKeyboard } from './hooks/useHistory';
 import { AiService } from './services/aiService';
+
+// Lazy load heavy components for better performance
+const SettingsModal = lazy(() => import('./components/SettingsModal').then(module => ({ default: module.SettingsModal })));
+const ExportModal = lazy(() => import('./components/ExportModal').then(module => ({ default: module.ExportModal })));
+
+// Loading component for Suspense fallback
+const ModalLoader = () => (
+  <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+    <div className="bg-gray-900 border border-cyan-500/30 rounded-lg p-6 shadow-2xl">
+      <div className="flex items-center space-x-3">
+        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-cyan-400"></div>
+        <span className="text-cyan-400 font-medium">Loading...</span>
+      </div>
+    </div>
+  </div>
+);
 
 function App() {
   const { 
@@ -232,17 +246,21 @@ function App() {
         </div>
       </div>
 
-      {/* Modals */}
-      <SettingsModal
-        isOpen={isSettingsOpen}
-        onClose={() => setIsSettingsOpen(false)}
-      />
+      {/* Modals with Lazy Loading */}
+      <Suspense fallback={isSettingsOpen ? <ModalLoader /> : null}>
+        <SettingsModal
+          isOpen={isSettingsOpen}
+          onClose={() => setIsSettingsOpen(false)}
+        />
+      </Suspense>
       
-      <ExportModal
-        isOpen={isExportOpen}
-        onClose={() => setIsExportOpen(false)}
-        diagramElement={diagramRef.current}
-      />
+      <Suspense fallback={isExportOpen ? <ModalLoader /> : null}>
+        <ExportModal
+          isOpen={isExportOpen}
+          onClose={() => setIsExportOpen(false)}
+          diagramElement={diagramRef.current}
+        />
+      </Suspense>
 
       {/* Toaster for notifications */}
       <Toaster 
